@@ -27,9 +27,17 @@ contract WaystoneNFTTest is Test {
         renderer = new WaystoneRenderer();
         nft = new WaystoneNFT(address(atlas), address(renderer));
 
-        // Bags 1 & 2 share a Power-stacked loadout → guaranteed road.
+        // Bags 1, 2 & 3 share a Power-stacked loadout → guaranteed roads (and route).
         loot.setBag(1, _powerSlots());
         loot.setBag(2, _powerSlots());
+        loot.setBag(3, _powerSlots());
+    }
+
+    function _route() internal pure returns (uint256[] memory path) {
+        path = new uint256[](3);
+        path[0] = 1;
+        path[1] = 2;
+        path[2] = 3;
     }
 
     function test_MintForRoadByDiscoverer() public {
@@ -105,6 +113,33 @@ contract WaystoneNFTTest is Test {
     function test_TokenURIRevertsForUnowned() public {
         vm.expectRevert();
         nft.tokenURI(999);
+    }
+
+    function test_MintForRouteByDiscoverer() public {
+        uint256[] memory path = _route();
+        vm.prank(alice);
+        atlas.discoverRoute(path);
+
+        vm.prank(alice);
+        uint256 id = nft.mintForRoute(path);
+
+        assertEq(id, 1);
+        assertEq(nft.ownerOf(1), alice);
+        assertEq(nft.tokenForRoute(path), 1);
+    }
+
+    function test_MintRouteRevertsForNonDiscoverer() public {
+        uint256[] memory path = _route();
+        vm.prank(alice);
+        atlas.discoverRoute(path);
+
+        vm.expectRevert(WaystoneNFT.NotDiscoverer.selector);
+        vm.prank(bob);
+        nft.mintForRoute(path);
+    }
+
+    function test_TokenForRouteZeroWhenUnminted() public view {
+        assertEq(nft.tokenForRoute(_route()), 0);
     }
 
     function _powerSlots() internal pure returns (string[8] memory s) {

@@ -21,6 +21,20 @@ export const waystoneAbi = [
   },
   {
     type: "function",
+    name: "mintForRoute",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "path", type: "uint256[]" }],
+    outputs: [{ name: "tokenId", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "tokenForRoute",
+    stateMutability: "view",
+    inputs: [{ name: "path", type: "uint256[]" }],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
     name: "tokenURI",
     stateMutability: "view",
     inputs: [{ name: "tokenId", type: "uint256" }],

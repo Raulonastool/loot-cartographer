@@ -9,33 +9,58 @@ import { DEFAULT_CHAIN_ID } from "@/lib/wagmi";
 import { WaystoneImage } from "./OnchainSvg";
 import { ErrorPanel, Row } from "./ui";
 
+export type WaystoneTarget =
+  | { kind: "road"; bagA: bigint; bagB: bigint }
+  | { kind: "route"; path: bigint[] };
+
 export function WaystonePanel({
-  bagA,
-  bagB,
+  target,
   addrs,
   canMint,
 }: {
-  bagA: bigint;
-  bagB: bigint;
+  target: WaystoneTarget;
   addrs: DeploymentAddresses;
   canMint: boolean;
 }) {
-  const minted = useReadContract({
+  const isRoad = target.kind === "road";
+
+  const roadToken = useReadContract({
     address: addrs.waystone,
     abi: waystoneAbi,
     functionName: "tokenForRoad",
-    args: [bagA, bagB],
+    args: isRoad ? [target.bagA, target.bagB] : undefined,
     chainId: DEFAULT_CHAIN_ID,
+    query: { enabled: isRoad },
   });
 
+  const routeToken = useReadContract({
+    address: addrs.waystone,
+    abi: waystoneAbi,
+    functionName: "tokenForRoute",
+    args: isRoad ? undefined : [target.path],
+    chainId: DEFAULT_CHAIN_ID,
+    query: { enabled: !isRoad },
+  });
+
+  const minted = isRoad ? roadToken : routeToken;
+
   const mint = useTxButton({
-    request: {
-      address: addrs.waystone,
-      abi: waystoneAbi,
-      functionName: "mintForRoad",
-      args: [bagA, bagB],
-      chainId: DEFAULT_CHAIN_ID,
-    },
+    request:
+      target.kind === "road"
+        ? {
+            address: addrs.waystone,
+            abi: waystoneAbi,
+            functionName: "mintForRoad",
+            args: [target.bagA, target.bagB],
+            chainId: DEFAULT_CHAIN_ID,
+          }
+        : {
+            address: addrs.waystone,
+            abi: waystoneAbi,
+            functionName: "mintForRoute",
+            args: [target.path],
+            chainId: DEFAULT_CHAIN_ID,
+          },
     idleLabel: "mint waystone",
     onMined: minted.refetch,
   });
@@ -65,7 +90,7 @@ export function WaystonePanel({
         </div>
       ) : (
         <p className="text-rule italic">
-          only the cartographer who charted this road may raise its waystone.
+          only the cartographer who charted this {target.kind} may raise its waystone.
         </p>
       )}
     </div>

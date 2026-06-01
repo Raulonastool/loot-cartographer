@@ -3,7 +3,7 @@
 import { atlasAbi, cartographerAbi } from "@loot-cartographer/shared";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useReadContract, useReadContracts } from "wagmi";
 
 import { loadAnvilAddresses, type DeploymentAddresses } from "@/lib/contracts";
 import { useTxButton } from "@/lib/useTxButton";
@@ -14,7 +14,7 @@ import { ErrorPanel, Row } from "./ui";
 
 const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
-export function RoadView({ bagA, bagB }: { bagA: bigint; bagB: bigint }) {
+export function RouteView({ path }: { path: bigint[] }) {
   const [addrs, setAddrs] = useState<DeploymentAddresses | null>(null);
   const [loadingAddrs, setLoadingAddrs] = useState(true);
 
@@ -26,33 +26,30 @@ export function RoadView({ bagA, bagB }: { bagA: bigint; bagB: bigint }) {
 
   if (loadingAddrs) return <p className="text-rule italic">consulting the atlas…</p>;
   if (!addrs) return <NoAddresses />;
-  return <RoadViewWithAddrs bagA={bagA} bagB={bagB} addrs={addrs} />;
+  return <RouteViewWithAddrs path={path} addrs={addrs} />;
 }
 
-function RoadViewWithAddrs({
-  bagA,
-  bagB,
-  addrs,
-}: {
-  bagA: bigint;
-  bagB: bigint;
-  addrs: DeploymentAddresses;
-}) {
+function RouteViewWithAddrs({ path, addrs }: { path: bigint[]; addrs: DeploymentAddresses }) {
   const { address: connected, isConnected } = useAccount();
 
-  const road = useReadContract({
-    address: addrs.cartographer,
-    abi: cartographerAbi,
-    functionName: "roadBetween",
-    args: [bagA, bagB],
-    chainId: DEFAULT_CHAIN_ID,
+  const hops = useReadContracts({
+    contracts: path.slice(0, -1).map(
+      (bag, i) =>
+        ({
+          address: addrs.cartographer,
+          abi: cartographerAbi,
+          functionName: "roadBetween",
+          args: [bag, path[i + 1]],
+          chainId: DEFAULT_CHAIN_ID,
+        }) as const,
+    ),
   });
 
   const discovery = useReadContract({
     address: addrs.atlas,
     abi: atlasAbi,
-    functionName: "getRoadDiscovery",
-    args: [bagA, bagB],
+    functionName: "getRouteDiscovery",
+    args: [path],
     chainId: DEFAULT_CHAIN_ID,
   });
 
@@ -60,31 +57,19 @@ function RoadViewWithAddrs({
     request: {
       address: addrs.atlas,
       abi: atlasAbi,
-      functionName: "discoverRoad",
-      args: [bagA, bagB],
+      functionName: "discoverRoute",
+      args: [path],
       chainId: DEFAULT_CHAIN_ID,
     },
-    idleLabel: "discover this road",
+    idleLabel: "discover this route",
     onMined: discovery.refetch,
   });
 
-  if (road.isLoading) return <p className="text-rule italic">surveying the route…</p>;
-  if (road.error) return <ErrorPanel message={road.error.message} />;
-  if (!road.data) return <p className="text-rule">no road data</p>;
+  if (hops.isLoading) return <p className="text-rule italic">surveying the route…</p>;
+  if (hops.error) return <ErrorPanel message={hops.error.message} />;
 
-  const r = road.data;
-
-  if (!r.exists) {
-    return (
-      <div className="space-y-4">
-        <Row label="Distance" value={r.distance.toString()} />
-        <Row label="Score" value={r.score.toString()} />
-        <p className="text-rule italic">
-          no road. The bags share too little to be connected at this distance.
-        </p>
-      </div>
-    );
-  }
+  const brokenHop = (hops.data ?? []).findIndex((h) => h.status !== "success" || !h.result?.exists);
+  const allHopsValid = brokenHop === -1;
 
   const d = discovery.data;
   const isDiscovered = d && d.discoverer !== ZERO;
@@ -93,13 +78,16 @@ function RoadViewWithAddrs({
 
   return (
     <div className="space-y-6">
-      <Row label="Distance" value={r.distance.toString()} />
-      <Row label="Cost" value={r.cost.toString()} />
-      <Row label="Score" value={r.score.toString()} />
+      <HopChain path={path} brokenHop={brokenHop} />
 
       <span className="rule" />
 
-      {isDiscovered ? (
+      {!allHopsValid ? (
+        <p className="text-rule italic">
+          broken link at #{path[brokenHop].toString()} <span className="text-rule">→</span>{" "}
+          #{path[brokenHop + 1].toString()}. These bags share no road, so no route runs through them.
+        </p>
+      ) : isDiscovered ? (
         <div className="space-y-6">
           <div className="space-y-3">
             <p className="text-rule text-xs tracking-widest uppercase">Discovered</p>
@@ -114,20 +102,17 @@ function RoadViewWithAddrs({
               />
               <Row label="Block" value={d.blockNumber.toString()} />
               <Row label="Discovery ID" value={`#${d.discoveryId.toString()}`} />
+              <Row label="Total Cost" value={d.totalCost.toString()} />
             </div>
           </div>
 
-          <WaystonePanel
-            target={{ kind: "road", bagA, bagB }}
-            addrs={addrs}
-            canMint={isDiscoverer}
-          />
+          <WaystonePanel target={{ kind: "route", path }} addrs={addrs} canMint={isDiscoverer} />
         </div>
       ) : (
         <div className="space-y-3">
           <p className="text-rule text-xs tracking-widest uppercase">Undiscovered</p>
           {!isConnected ? (
-            <p className="text-rule italic">connect a wallet to chart this road.</p>
+            <p className="text-rule italic">connect a wallet to chart this route.</p>
           ) : (
             <button
               onClick={discover.send}
@@ -144,15 +129,34 @@ function RoadViewWithAddrs({
       <span className="rule" />
 
       <p className="text-rule text-sm">
-        <Link href={`/bag/${bagA.toString()}`} className="underline decoration-rule/40 hover:decoration-ink">
-          inspect bag #{bagA.toString()}
-        </Link>
-        {"  ·  "}
-        <Link href={`/bag/${bagB.toString()}`} className="underline decoration-rule/40 hover:decoration-ink">
-          inspect bag #{bagB.toString()}
-        </Link>
+        {path.map((bag, i) => (
+          <span key={i}>
+            {i > 0 && "  ·  "}
+            <Link
+              href={`/bag/${bag.toString()}`}
+              className="underline decoration-rule/40 hover:decoration-ink"
+            >
+              inspect bag #{bag.toString()}
+            </Link>
+          </span>
+        ))}
       </p>
     </div>
+  );
+}
+
+function HopChain({ path, brokenHop }: { path: bigint[]; brokenHop: number }) {
+  return (
+    <p className="font-mono text-lg tracking-wider">
+      {path.map((bag, i) => (
+        <span key={i}>
+          {i > 0 && (
+            <span className={i - 1 === brokenHop ? "text-red-400" : "text-rule"}> → </span>
+          )}
+          #{bag.toString()}
+        </span>
+      ))}
+    </p>
   );
 }
 

@@ -28,7 +28,8 @@ contract SeedAnvil is Script {
         WaystoneRenderer renderer = new WaystoneRenderer();
         WaystoneNFT nft = new WaystoneNFT(address(atlas), address(renderer));
 
-        // Seed some sample bags. Bag #1 and #2 share the Power order → road exists.
+        // Seed some sample bags. Bags #1, #2, #7 share the Power order → roads exist,
+        // so the route #1 → #2 → #7 is chartable.
         string[8] memory powerLoadout = [
             string("Katana of Power"),
             "Robe of Power",
@@ -41,6 +42,7 @@ contract SeedAnvil is Script {
         ];
         loot.setBag(1, powerLoadout);
         loot.setBag(2, powerLoadout);
+        loot.setBag(7, powerLoadout);
 
         string[8] memory brillianceLoadout = [
             string("Wand of Brilliance"),
