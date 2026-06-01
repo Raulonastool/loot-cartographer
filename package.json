@@ -12,7 +12,8 @@
     "test:contracts": "pnpm --filter @loot-cartographer/contracts test",
     "dev": "pnpm --filter @loot-cartographer/web dev",
     "build:web": "pnpm --filter @loot-cartographer/web build",
-    "fetch:loot-bags": "node contracts/scripts/fetch-loot-bags.mjs"
+    "fetch:loot-bags": "node contracts/scripts/fetch-loot-bags.mjs",
+    "precompute:coords": "node contracts/scripts/precompute-bag-coords.mjs"
   },
   "devDependencies": {
     "viem": "^2.21.40"

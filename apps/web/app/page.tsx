@@ -16,13 +16,20 @@ export default function HomePage() {
 
       <section className="space-y-3">
         <h2 className="text-xl tracking-widest uppercase text-rule">Begin</h2>
-        <p>
-          Enter a bag id to locate it.{" "}
-          <Link href="/bag/1" className="underline decoration-rule/40 hover:decoration-ink">
-            Try bag #1
-          </Link>
-          .
-        </p>
+        <ul className="space-y-2">
+          <li>
+            <Link href="/atlas" className="underline decoration-rule/40 hover:decoration-ink">
+              Open the atlas
+            </Link>
+            <span className="text-rule"> — see all 8,000 bags plotted across the world.</span>
+          </li>
+          <li>
+            <Link href="/bag/1" className="underline decoration-rule/40 hover:decoration-ink">
+              Inspect bag #1
+            </Link>
+            <span className="text-rule"> — coordinates, region, terrain.</span>
+          </li>
+        </ul>
       </section>
     </main>
   );

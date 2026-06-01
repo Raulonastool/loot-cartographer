@@ -48,6 +48,22 @@ contract RoadDensityTest is Test {
         }
     }
 
+    /// @notice Asserts that the offchain coordinate derivation in
+    ///         contracts/scripts/precompute-bag-coords.mjs matches Coordinates.sol
+    ///         exactly for a handful of bags. Update both sides together if the
+    ///         derivation ever changes.
+    function testFixture_PrecomputedCoordsMatchContract() public view {
+        uint256[5] memory ids = [uint256(1), 2, 100, 4321, 8000];
+        int256[5] memory expectX = [int256(-1751), 3911, -3331, 2232, 2732];
+        int256[5] memory expectY = [int256(-1253), 697, -4648, -845, -3858];
+
+        for (uint256 i = 0; i < 5; i++) {
+            (int256 x, int256 y) = carto.locate(ids[i]);
+            assertEq(x, expectX[i], "x mismatch");
+            assertEq(y, expectY[i], "y mismatch");
+        }
+    }
+
     /// @notice Build the histogram of road `score` across SAMPLE_PAIRS random pairs.
     ///         Writes to contracts/deployments/road-density-histogram.json so the next
     ///         step (analyze-and-lock) can pick the right threshold.
