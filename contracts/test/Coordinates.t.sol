@@ -22,8 +22,7 @@ contract CoordinatesTest is Test {
     }
 
     function testFuzz_LocateInBounds(uint256 bagId) public pure {
-        (int256 x, int256 y) =
-            Coordinates.locate(bagId, "w", "c", "h", "ws", "ft", "hd", "nk", "rg");
+        (int256 x, int256 y) = Coordinates.locate(bagId, "w", "c", "h", "ws", "ft", "hd", "nk", "rg");
         assertGe(x, Coordinates.MIN_AXIS);
         assertLe(x, Coordinates.MAX_AXIS);
         assertGe(y, Coordinates.MIN_AXIS);

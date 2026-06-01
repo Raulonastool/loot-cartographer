@@ -13,9 +13,9 @@ library TerrainLib {
     {
         if (rarityCount >= 4) return ILootCartographer.Terrain.Ruins;
 
-        if (
-            dominantOrder == Orders.POWER || dominantOrder == Orders.TITANS || dominantOrder == Orders.SKILL
-        ) return ILootCartographer.Terrain.Mountains;
+        if (dominantOrder == Orders.POWER || dominantOrder == Orders.TITANS || dominantOrder == Orders.SKILL) {
+            return ILootCartographer.Terrain.Mountains;
+        }
 
         if (dominantOrder == Orders.GIANTS || dominantOrder == Orders.BRILLIANCE) {
             return ILootCartographer.Terrain.Desert;

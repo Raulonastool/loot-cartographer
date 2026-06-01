@@ -20,11 +20,14 @@ jobs:
       run:
         working-directory: contracts
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: foundry-rs/foundry-toolchain@v1
         with:
           version: stable
+
+      - name: forge fmt --check
+        run: forge fmt --check
 
       - name: forge build
         run: forge build --sizes
@@ -39,7 +42,7 @@ jobs:
     name: web (typecheck + build)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
 

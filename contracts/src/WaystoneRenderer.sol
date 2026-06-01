@@ -27,48 +27,34 @@ contract WaystoneRenderer is IWaystoneRenderer {
 
     function renderRoute(uint256[] calldata path) external pure returns (string memory) {
         bytes32 key = keccak256(abi.encodePacked("ROUTE", path));
-        string memory inscription =
-            string.concat(LibString.toString(path[0]), " /", LibString.toString(path.length), " stops/ ",
-                LibString.toString(path[path.length - 1]));
+        string memory inscription = string.concat(
+            LibString.toString(path[0]),
+            " /",
+            LibString.toString(path.length),
+            " stops/ ",
+            LibString.toString(path[path.length - 1])
+        );
         return _render(key, inscription);
     }
 
     // ─── internals ────────────────────────────────────────────────────────
 
     function _render(bytes32 key, string memory inscription) private pure returns (string memory) {
-        return string.concat(
-            SVG_HEAD,
-            BACKDROP,
-            _stone(key),
-            _glyphGrid(key),
-            _inscription(inscription),
-            SVG_TAIL
-        );
+        return string.concat(SVG_HEAD, BACKDROP, _stone(key), _glyphGrid(key), _inscription(inscription), SVG_TAIL);
     }
 
     function _stone(bytes32 key) private pure returns (string memory) {
         // 8-vertex octagon, perturbed by hash bytes. Center (100, 130), radius 80.
-        int16[16] memory baseXY = [
-            int16(180), 130,
-            157, 187,
-            100, 210,
-            43, 187,
-            20, 130,
-            43, 73,
-            100, 50,
-            157, 73
-        ];
+        int16[16] memory baseXY = [int16(180), 130, 157, 187, 100, 210, 43, 187, 20, 130, 43, 73, 100, 50, 157, 73];
 
         string memory points = "";
         for (uint256 i = 0; i < 8; i++) {
             // Perturb each vertex by [-5, +5] from two hash bytes.
-            int16 dx = int16(int8(uint8(key[i * 2]))) / 26;     // ~[-5, 4]
+            int16 dx = int16(int8(uint8(key[i * 2]))) / 26; // ~[-5, 4]
             int16 dy = int16(int8(uint8(key[i * 2 + 1]))) / 26;
             int16 px = baseXY[i * 2] + dx;
             int16 py = baseXY[i * 2 + 1] + dy;
-            points = string.concat(
-                points, _i16(px), ",", _i16(py), i == 7 ? "" : " "
-            );
+            points = string.concat(points, _i16(px), ",", _i16(py), i == 7 ? "" : " ");
         }
 
         return string.concat('<polygon points="', points, STROKE);

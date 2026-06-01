@@ -86,9 +86,8 @@ contract LootCartographer is ILootCartographer {
         uint8 sharedOrder = (aDom != Orders.NONE && aDom == bDom) ? 1 : 0;
         uint8 rarityResonance = aRarity < bRarity ? aRarity : bRarity;
 
-        uint256 affinity =
-            uint256(sharedOrder) * 40 + uint256(sharedSuffix) * 8 + uint256(sharedTypes) * 4
-                + uint256(rarityResonance) * 6;
+        uint256 affinity = uint256(sharedOrder) * 40 + uint256(sharedSuffix) * 8 + uint256(sharedTypes) * 4
+            + uint256(rarityResonance) * 6;
 
         // score = affinity*100 - dist/20
         int256 scoreSigned = int256(affinity) * 100 - int256(dist) / 20;
@@ -119,15 +118,10 @@ contract LootCartographer is ILootCartographer {
         b.hand = l.getHand(bagId);
         b.neck = l.getNeck(bagId);
         b.ring = l.getRing(bagId);
-        (b.x, b.y) =
-            Coordinates.locate(bagId, b.weapon, b.chest, b.head, b.waist, b.foot, b.hand, b.neck, b.ring);
+        (b.x, b.y) = Coordinates.locate(bagId, b.weapon, b.chest, b.head, b.waist, b.foot, b.hand, b.neck, b.ring);
     }
 
-    function _slotSignals(Bag memory b)
-        internal
-        pure
-        returns (uint8[8] memory slotOrders, uint8 rarityCount)
-    {
+    function _slotSignals(Bag memory b) internal pure returns (uint8[8] memory slotOrders, uint8 rarityCount) {
         slotOrders[0] = Orders.orderOf(b.weapon);
         slotOrders[1] = Orders.orderOf(b.chest);
         slotOrders[2] = Orders.orderOf(b.head);

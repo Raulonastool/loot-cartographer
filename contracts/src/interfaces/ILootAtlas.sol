@@ -4,16 +4,10 @@ pragma solidity ^0.8.24;
 /// @notice Permissionless registry of discovered roads and routes.
 interface ILootAtlas {
     event RoadDiscovered(
-        bytes32 indexed key,
-        uint256 indexed bagA,
-        uint256 indexed bagB,
-        address discoverer,
-        uint64 discoveryId
+        bytes32 indexed key, uint256 indexed bagA, uint256 indexed bagB, address discoverer, uint64 discoveryId
     );
 
-    event RouteDiscovered(
-        bytes32 indexed key, address indexed discoverer, uint256 totalCost, uint64 discoveryId
-    );
+    event RouteDiscovered(bytes32 indexed key, address indexed discoverer, uint256 totalCost, uint64 discoveryId);
 
     struct RoadDiscovery {
         uint256 bagA;

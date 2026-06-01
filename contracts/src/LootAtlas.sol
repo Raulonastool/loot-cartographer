@@ -42,11 +42,7 @@ contract LootAtlas is ILootAtlas {
 
         (uint256 lo, uint256 hi) = _sorted(bagA, bagB);
         _roads[key] = RoadDiscovery({
-            bagA: lo,
-            bagB: hi,
-            discoverer: msg.sender,
-            blockNumber: uint64(block.number),
-            discoveryId: discoveryId
+            bagA: lo, bagB: hi, discoverer: msg.sender, blockNumber: uint64(block.number), discoveryId: discoveryId
         });
 
         emit RoadDiscovered(key, lo, hi, msg.sender, discoveryId);

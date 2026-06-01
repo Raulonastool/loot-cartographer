@@ -58,27 +58,12 @@ contract SeedAnvil is Script {
         loot.setBag(4, brillianceLoadout);
 
         string[8] memory angerLoadout = [
-            string("Maul of Anger"),
-            "Mail of Anger",
-            "Helm",
-            "Belt",
-            "Boots",
-            "Gauntlets",
-            "Pendant",
-            "Bronze Ring"
+            string("Maul of Anger"), "Mail of Anger", "Helm", "Belt", "Boots", "Gauntlets", "Pendant", "Bronze Ring"
         ];
         loot.setBag(5, angerLoadout);
 
-        string[8] memory plainLoadout = [
-            string("Quarterstaff"),
-            "Shirt",
-            "Cap",
-            "Sash",
-            "Shoes",
-            "Gloves",
-            "Pendant",
-            "Gold Ring"
-        ];
+        string[8] memory plainLoadout =
+            [string("Quarterstaff"), "Shirt", "Cap", "Sash", "Shoes", "Gloves", "Pendant", "Gold Ring"];
         loot.setBag(6, plainLoadout);
 
         vm.stopBroadcast();
@@ -96,11 +81,21 @@ contract SeedAnvil is Script {
         string memory json = string.concat(
             "{\n",
             '  "chainId": 31337,\n',
-            '  "loot": "',          vm.toString(loot),     '",\n',
-            '  "cartographer": "',  vm.toString(carto),    '",\n',
-            '  "atlas": "',         vm.toString(atlas),    '",\n',
-            '  "renderer": "',      vm.toString(renderer), '",\n',
-            '  "waystone": "',      vm.toString(nft),      '"\n',
+            '  "loot": "',
+            vm.toString(loot),
+            '",\n',
+            '  "cartographer": "',
+            vm.toString(carto),
+            '",\n',
+            '  "atlas": "',
+            vm.toString(atlas),
+            '",\n',
+            '  "renderer": "',
+            vm.toString(renderer),
+            '",\n',
+            '  "waystone": "',
+            vm.toString(nft),
+            '"\n',
             "}\n"
         );
         vm.writeFile("./deployments/anvil.json", json);
