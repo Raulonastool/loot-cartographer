@@ -77,7 +77,7 @@ contract LootAtlas is ILootAtlas {
             totalCost: totalCost
         });
 
-        emit RouteDiscovered(key, msg.sender, totalCost, discoveryId);
+        emit RouteDiscovered(key, msg.sender, totalCost, discoveryId, path);
     }
 
     // ─── views ────────────────────────────────────────────────────────────

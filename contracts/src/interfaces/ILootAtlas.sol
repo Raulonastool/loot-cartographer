@@ -7,7 +7,9 @@ interface ILootAtlas {
         bytes32 indexed key, uint256 indexed bagA, uint256 indexed bagB, address discoverer, uint64 discoveryId
     );
 
-    event RouteDiscovered(bytes32 indexed key, address indexed discoverer, uint256 totalCost, uint64 discoveryId);
+    event RouteDiscovered(
+        bytes32 indexed key, address indexed discoverer, uint256 totalCost, uint64 discoveryId, uint256[] path
+    );
 
     struct RoadDiscovery {
         uint256 bagA;

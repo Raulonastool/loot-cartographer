@@ -91,6 +91,8 @@ contract LootAtlasTest is Test {
         path[2] = 3;
 
         vm.prank(alice);
+        vm.expectEmit(false, true, false, false);
+        emit ILootAtlas.RouteDiscovered(bytes32(0), alice, 0, 1, path);
         uint64 id = atlas.discoverRoute(path);
         assertEq(id, 1);
         assertEq(atlas.routeCount(), 1);

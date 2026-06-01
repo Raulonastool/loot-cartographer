@@ -1,3 +1,4 @@
+import { ActivityFeed } from "@/components/ActivityFeed";
 import { WorldMap } from "@/components/WorldMap";
 
 export default function AtlasPage() {
@@ -13,6 +14,10 @@ export default function AtlasPage() {
       <p className="text-rule text-xs italic">
         scroll to zoom · drag to pan · click a point to inspect · search to jump
       </p>
+
+      <span className="rule" />
+
+      <ActivityFeed />
     </main>
   );
 }

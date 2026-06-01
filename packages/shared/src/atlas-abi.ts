@@ -105,6 +105,7 @@ export const atlasAbi = [
       { name: "discoverer", type: "address", indexed: true },
       { name: "totalCost", type: "uint256", indexed: false },
       { name: "discoveryId", type: "uint64", indexed: false },
+      { name: "path", type: "uint256[]", indexed: false },
     ],
   },
 ] as const;
