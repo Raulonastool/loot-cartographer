@@ -17,4 +17,6 @@ interface IWaystoneNFT {
 
     function tokenURI(uint256 tokenId) external view returns (string memory);
     function totalSupply() external view returns (uint256);
+    function tokenForRoad(uint256 bagA, uint256 bagB) external view returns (uint256);
+    function tokenForRoute(uint256[] calldata path) external view returns (uint256);
 }

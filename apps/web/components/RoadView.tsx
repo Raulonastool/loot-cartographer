@@ -3,10 +3,14 @@
 import { atlasAbi, cartographerAbi } from "@loot-cartographer/shared";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 
 import { loadAnvilAddresses, type DeploymentAddresses } from "@/lib/contracts";
+import { useTxButton } from "@/lib/useTxButton";
 import { DEFAULT_CHAIN_ID } from "@/lib/wagmi";
+
+import { WaystonePanel } from "./WaystonePanel";
+import { ErrorPanel, Row } from "./ui";
 
 const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
@@ -52,14 +56,17 @@ function RoadViewWithAddrs({
     chainId: DEFAULT_CHAIN_ID,
   });
 
-  const { writeContract, data: txHash, isPending: txSending, error: writeError } = useWriteContract();
-  const { isLoading: txMining, isSuccess: txMined } = useWaitForTransactionReceipt({ hash: txHash });
-
-  useEffect(() => {
-    if (txMined) {
-      discovery.refetch();
-    }
-  }, [txMined, discovery]);
+  const discover = useTxButton({
+    request: {
+      address: addrs.atlas,
+      abi: atlasAbi,
+      functionName: "discoverRoad",
+      args: [bagA, bagB],
+      chainId: DEFAULT_CHAIN_ID,
+    },
+    idleLabel: "discover this road",
+    onMined: discovery.refetch,
+  });
 
   if (road.isLoading) return <p className="text-rule italic">surveying the route…</p>;
   if (road.error) return <ErrorPanel message={road.error.message} />;
@@ -82,7 +89,7 @@ function RoadViewWithAddrs({
   const d = discovery.data;
   const isDiscovered = d && d.discoverer !== ZERO;
   const isDiscoverer =
-    isDiscovered && connected && d.discoverer.toLowerCase() === connected.toLowerCase();
+    Boolean(isDiscovered && connected && d.discoverer.toLowerCase() === connected.toLowerCase());
 
   return (
     <div className="space-y-6">
@@ -93,20 +100,24 @@ function RoadViewWithAddrs({
       <span className="rule" />
 
       {isDiscovered ? (
-        <div className="space-y-3">
-          <p className="text-rule text-xs tracking-widest uppercase">Discovered</p>
-          <div className="space-y-2">
-            <Row
-              label="Cartographer"
-              value={
-                isDiscoverer
-                  ? `${d.discoverer.slice(0, 6)}…${d.discoverer.slice(-4)} (you)`
-                  : `${d.discoverer.slice(0, 6)}…${d.discoverer.slice(-4)}`
-              }
-            />
-            <Row label="Block" value={d.blockNumber.toString()} />
-            <Row label="Discovery ID" value={`#${d.discoveryId.toString()}`} />
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <p className="text-rule text-xs tracking-widest uppercase">Discovered</p>
+            <div className="space-y-2">
+              <Row
+                label="Cartographer"
+                value={
+                  isDiscoverer
+                    ? `${d.discoverer.slice(0, 6)}…${d.discoverer.slice(-4)} (you)`
+                    : `${d.discoverer.slice(0, 6)}…${d.discoverer.slice(-4)}`
+                }
+              />
+              <Row label="Block" value={d.blockNumber.toString()} />
+              <Row label="Discovery ID" value={`#${d.discoveryId.toString()}`} />
+            </div>
           </div>
+
+          <WaystonePanel bagA={bagA} bagB={bagB} addrs={addrs} canMint={isDiscoverer} />
         </div>
       ) : (
         <div className="space-y-3">
@@ -115,22 +126,14 @@ function RoadViewWithAddrs({
             <p className="text-rule italic">connect a wallet to chart this road.</p>
           ) : (
             <button
-              onClick={() =>
-                writeContract({
-                  address: addrs.atlas,
-                  abi: atlasAbi,
-                  functionName: "discoverRoad",
-                  args: [bagA, bagB],
-                  chainId: DEFAULT_CHAIN_ID,
-                })
-              }
-              disabled={txSending || txMining}
+              onClick={discover.send}
+              disabled={discover.isPending}
               className="border border-rule px-4 py-2 text-sm tracking-widest uppercase hover:bg-rule/10 disabled:opacity-50"
             >
-              {txSending ? "signing…" : txMining ? "minting…" : "discover this road"}
+              {discover.label}
             </button>
           )}
-          {writeError && <ErrorPanel message={writeError.message} />}
+          {discover.error && <ErrorPanel message={discover.error.message} />}
         </div>
       )}
 
@@ -149,15 +152,6 @@ function RoadViewWithAddrs({
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between border-b border-rule/20 pb-2">
-      <span className="text-rule text-xs tracking-widest uppercase">{label}</span>
-      <span className="font-mono">{value}</span>
-    </div>
-  );
-}
-
 function NoAddresses() {
   return (
     <div className="space-y-2 border border-rule/30 p-4 text-sm">
@@ -168,14 +162,6 @@ function NoAddresses() {
       <pre className="font-mono text-xs bg-black/30 p-3 overflow-x-auto">
 forge script script/SeedAnvil.s.sol --rpc-url http://localhost:8545 --broadcast
       </pre>
-    </div>
-  );
-}
-
-function ErrorPanel({ message }: { message: string }) {
-  return (
-    <div className="border border-red-900/40 p-3 text-sm text-red-300">
-      <p className="font-mono break-all">{message}</p>
     </div>
   );
 }

@@ -79,6 +79,16 @@ contract WaystoneNFT is ERC721, IWaystoneNFT {
         return _nextId - 1;
     }
 
+    /// @notice Token id minted for a road, or 0 if unminted. Order-independent.
+    function tokenForRoad(uint256 bagA, uint256 bagB) external view returns (uint256) {
+        return _mintedByKey[atlas.roadKey(bagA, bagB)];
+    }
+
+    /// @notice Token id minted for a route, or 0 if unminted.
+    function tokenForRoute(uint256[] calldata path) external view returns (uint256) {
+        return _mintedByKey[atlas.routeKey(path)];
+    }
+
     function tokenURI(uint256 tokenId) public view override(ERC721, IWaystoneNFT) returns (string memory) {
         _requireOwned(tokenId);
 
