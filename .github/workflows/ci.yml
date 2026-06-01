@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    name: contracts (forge)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: forge build
+        run: forge build --sizes
+
+      - name: forge test
+        # Mirrors `pnpm test:contracts`. Excludes the testFixture_* suites,
+        # which need committed bag fixtures / an RPC; the mainnet-fork test
+        # skips itself when MAINNET_RPC_URL is unset.
+        run: forge test --no-match-test testFixture -vvv
+
+  web:
+    name: web (typecheck + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: typecheck
+        run: pnpm --filter @loot-cartographer/web typecheck
+
+      - name: build
+        run: pnpm --filter @loot-cartographer/web build

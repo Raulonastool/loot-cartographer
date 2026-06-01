@@ -1,5 +1,7 @@
 # Loot Cartographer
 
+[![CI](https://github.com/Raulonastool/loot-cartographer/actions/workflows/ci.yml/badge.svg)](https://github.com/Raulonastool/loot-cartographer/actions/workflows/ci.yml)
+
 > Loot told us what each adventurer carried.
 > Loot Cartographer answers a different question: **where was the bag found?**
 
