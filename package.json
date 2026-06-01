@@ -1,0 +1,16 @@
+{
+  "name": "loot-cartographer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Onchain worldbuilding for Loot — every bag is a fixed point in a deterministic world",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:contracts": "pnpm --filter @loot-cartographer/contracts build",
+    "test:contracts": "pnpm --filter @loot-cartographer/contracts test",
+    "dev": "pnpm --filter @loot-cartographer/web dev",
+    "build:web": "pnpm --filter @loot-cartographer/web build"
+  }
+}

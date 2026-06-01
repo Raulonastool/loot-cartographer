@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  background-color: #1a140d;
+  color: #e8ddb5;
+  font-family: "Cormorant Garamond", Garamond, serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.rule {
+  display: block;
+  height: 1px;
+  background: #9c8b66;
+  opacity: 0.3;
+}
