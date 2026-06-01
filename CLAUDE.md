@@ -76,8 +76,23 @@ Decision tree on (rarityCount, dominantOrder, greatnessSum, coordinateNoise). Se
 dist     = |xA-xB| + |yA-yB|
 affinity = sharedOrder*40 + sharedSuffix*8 + sharedTypes*4 + rarityResonance*6
 score    = affinity*100 - dist/20
-exists   = score >= ROAD_THRESHOLD     // 1000
+exists   = score >= ROAD_THRESHOLD     // 5300 (locked from real bag data)
 cost     = exists ? dist + (10000 - affinity*70)/10 : 0
+```
+
+**Threshold locking:** A 100k-pair sample of real mainnet Loot bags (see
+`contracts/test/RoadDensity.t.sol` + `contracts/deployments/road-density-histogram.json`)
+showed the score distribution is heavily bimodal — sharing an order alone produces
+scores in the ~4000s, so the threshold must be high to be selective. Picked **5300**
+to yield ~10.4 average outgoing roads per bag (~41,600 roads total across the 8000
+bags) — sparse but explorable.
+
+Re-lock workflow:
+```
+pnpm fetch:loot-bags      # one-time, ~1 min, hits mainnet via public RPC
+forge test --match-test testFixture_BuildHistogram -vv
+node contracts/scripts/analyze-histogram.mjs    # TARGET_AVG=10 by default
+# update ROAD_THRESHOLD in LootCartographer.sol, then re-run forge test
 ```
 
 ## Loot access
@@ -90,7 +105,8 @@ For state-changing paths (discoveries), per-bag fingerprints can be cached in `L
 
 - Repo scaffold + monorepo config
 - Contracts compile with `forge build`
-- Unit tests + a mainnet-fork test pass with `forge test`
+- Unit tests + mainnet-fork test pass with `forge test` (20/20)
+- `ROAD_THRESHOLD` locked at 5300 against real bag data (see derivation section)
 - `SeedAnvil.s.sol` deploys MockLoot + all 4 contracts to a local Anvil
 - Next.js page `/bag/[id]` reads `LootCartographer.locate(id)` from chain end-to-end
 
@@ -100,7 +116,6 @@ For state-changing paths (discoveries), per-bag fingerprints can be cached in `L
 - Real Waystone mint flow in the UI
 - Atlas page populated with discoveries
 - World-map SVG canvas with all 8000 bags
-- Road-density simulation to lock `ROAD_THRESHOLD`
 - CI workflow
 
 ## Conventions

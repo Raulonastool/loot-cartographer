@@ -10,6 +10,8 @@ optimizer_runs = 1_000_000
 via_ir = true
 fuzz = { runs = 1024 }
 verbosity = 2
+# Effectively unlimited; RoadDensity fixture loads 8000 bags into MockLoot during setUp.
+gas_limit = "18446744073709551615"
 
 remappings = [
     "forge-std/=lib/forge-std/src/",
@@ -19,7 +21,8 @@ remappings = [
 
 fs_permissions = [
     { access = "read-write", path = "./deployments" },
-    { access = "read-write", path = "../apps/web/public" }
+    { access = "read-write", path = "../apps/web/public" },
+    { access = "read", path = "./test/fixtures" }
 ]
 
 [rpc_endpoints]

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "forge build",
-    "test": "forge test",
+    "test": "forge test --no-match-test testFixture",
+    "test:density": "forge test --match-test testFixture_BuildHistogram -vv",
     "fmt": "forge fmt",
     "deploy:anvil": "forge script script/SeedAnvil.s.sol --rpc-url http://localhost:8545 --broadcast"
   }

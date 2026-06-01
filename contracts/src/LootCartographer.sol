@@ -16,7 +16,10 @@ import { TerrainLib } from "./libraries/TerrainLib.sol";
 contract LootCartographer is ILootCartographer {
     address public immutable override loot;
 
-    uint256 public constant ROAD_THRESHOLD = 1000;
+    /// @dev Locked from a 100k-pair sample of real mainnet Loot bags
+    ///      (test/RoadDensity.t.sol + deployments/road-density-histogram.json):
+    ///      threshold 5300 → est ~10.4 avg outgoing roads per bag (~41,600 roads total).
+    uint256 public constant ROAD_THRESHOLD = 5300;
 
     /// @dev Memory bag-state used internally to avoid stack-too-deep.
     struct Bag {
