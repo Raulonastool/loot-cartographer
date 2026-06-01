@@ -39,4 +39,34 @@ export const cartographerAbi = [
       { name: "name", type: "string" },
     ],
   },
+  {
+    type: "function",
+    name: "roadBetween",
+    stateMutability: "view",
+    inputs: [
+      { name: "bagA", type: "uint256" },
+      { name: "bagB", type: "uint256" },
+    ],
+    outputs: [
+      {
+        type: "tuple",
+        components: [
+          { name: "exists", type: "bool" },
+          { name: "cost", type: "uint256" },
+          { name: "score", type: "uint256" },
+          { name: "distance", type: "uint256" },
+        ],
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "distance",
+    stateMutability: "view",
+    inputs: [
+      { name: "bagA", type: "uint256" },
+      { name: "bagB", type: "uint256" },
+    ],
+    outputs: [{ type: "uint256" }],
+  },
 ] as const;

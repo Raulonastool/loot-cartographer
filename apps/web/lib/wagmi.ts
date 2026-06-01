@@ -1,8 +1,10 @@
 import { createConfig, http } from "wagmi";
 import { mainnet, foundry } from "wagmi/chains";
+import { injected } from "wagmi/connectors";
 
 export const wagmiConfig = createConfig({
   chains: [foundry, mainnet],
+  connectors: [injected()],
   transports: {
     [foundry.id]: http(process.env.NEXT_PUBLIC_ANVIL_RPC_URL ?? "http://localhost:8545"),
     [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_RPC_URL),
