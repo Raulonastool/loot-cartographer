@@ -7,6 +7,8 @@
 
 Onchain worldbuilding for [Loot (for Adventurers)](https://etherscan.io/address/0xFF9C1b15B16263C61d017ee9F65C50e4AE0113D7). Every bag is treated as a fixed point in a deterministic world generated entirely from the canonical Loot smart contract. Locations, regions, terrain, and roads are derived from onchain data and computation — no game master, no offchain database.
 
+**Jump to:** [Why](#why) · [What works](#what-works-today) · [Architecture](#architecture) · [Documentation](#documentation) · [Quick start](#quick-start) · [Development](#development) · [Status](#status)
+
 ## Why
 
 Loot's lore has one rule: **the blockchain is the sole source of truth.** The mint was deterministic — random, but fixed. Run the contract again and the same bags fall out, item for item. Nothing about a bag lives offchain to be edited later.
@@ -19,31 +21,36 @@ And for the cartographers who help chart this world, each discovery can be comme
 
 ## What works today
 
-- **Atlas** (`/atlas`) — all 8,000 bags plotted on their deterministic coordinates
-- **Bag** (`/bag/[id]`) — a bag's location, region, and terrain, read from chain
-- **Road** (`/road/[a]/[b]`) — connectivity between two bags; permissionless `discoverRoad`, then mint a road Waystone
-- **Route** (`/route/[...path]`) — chart an ordered path of bags with valid hops; `discoverRoute`, then mint a route Waystone
-- **Waystones** — ERC-721 with fully onchain SVG art, mint gated to the recorded discoverer
+| Feature | Where | What it does |
+|---|---|---|
+| **Atlas** | `/atlas` | All 8,000 bags plotted on their deterministic coordinates |
+| **Activity feed** | `/atlas` | Recent road & route discoveries and Waystone mints, read live from chain logs |
+| **Bag** | `/bag/[id]` | A bag's location, region, and terrain, read from chain |
+| **Road** | `/road/[a]/[b]` | Connectivity between two bags; permissionless `discoverRoad`, then mint a road Waystone |
+| **Route** | `/route/[...path]` | Chart an ordered path of bags with valid hops; `discoverRoute`, then mint a route Waystone |
+| **Waystones** | onchain | ERC-721 with fully onchain SVG art, mint gated to the recorded discoverer |
 
-## Repo layout
+## Architecture
 
 ```
-contracts/         Foundry project — LootCartographer, LootAtlas, WaystoneRenderer, WaystoneNFT
+contracts/         Foundry project (Solidity 0.8.24, via-IR)
 apps/web/          Next.js 15 frontend (wagmi v2, viem v2)
-packages/shared/   TypeScript type mirrors of onchain enums, names, and ABIs
+packages/shared/   TypeScript mirrors of onchain enums, region/terrain names, and ABIs
 ```
 
-The four contracts:
+Four contracts:
 
-- **`LootCartographer`** — pure view functions deriving location, region, terrain, distance, and roads from Loot.
+- **`LootCartographer`** — pure view functions deriving location, region, terrain, distance, and roads from Loot. Zero storage beyond the immutable Loot address.
 - **`LootAtlas`** — permissionless discovery registry (`discoverRoad`, `discoverRoute`), first-discoverer-wins.
 - **`WaystoneRenderer`** — pure onchain SVG builder for road/route glyphs.
 - **`WaystoneNFT`** — ERC-721; mint gated to the discoverer recorded in `LootAtlas`.
 
-Two ways in:
+The derivation math lives in six stateless libraries — `Coordinates`, `Pluck`, `Orders`, `Regions`, `TerrainLib`, `Glyphs` — wired together by the contracts above and documented in the deep-dive below.
 
-- **[A love letter to onchain art](docs/a-love-letter-to-onchain-art.md)** — the why: smart contracts as an artistic medium, permissionless interop, massively-multiplayer discovery, and how a 2021 seed keeps growing into worlds.
-- **[How the world is made](docs/how-the-world-is-made.md)** — the how: the full derivation math (coordinates, greatness, orders, regions, terrain, the road affinity formula) with `file:line` references and the seams left open for contributors.
+## Documentation
+
+- **[A love letter to onchain art](docs/a-love-letter-to-onchain-art.md)** — the *why*: smart contracts as an artistic medium, permissionless interop, massively-multiplayer discovery, and how a 2021 seed keeps growing into worlds. For collectors and onchain-art enjoyers.
+- **[How the world is made](docs/how-the-world-is-made.md)** — the *how*: the full derivation math (coordinates, greatness, orders, regions, terrain, the road affinity formula) with `file:line` references and the seams left open for contributors. For builders.
 
 ## Quick start
 
@@ -55,14 +62,30 @@ pnpm test:contracts
 # terminal 1 — local chain
 anvil
 
-# terminal 2 — deploy + seed sample bags
-cd contracts && forge script script/SeedAnvil.s.sol --rpc-url http://localhost:8545 --broadcast
+# terminal 2 — deploy the stack + seed sample bags to Anvil
+cd contracts && pnpm deploy:anvil
 
 # terminal 3 — frontend
 pnpm dev
 ```
 
-Then explore: `/atlas`, `/bag/1`, `/road/1/2`, `/route/1/2/7`. Connect an injected wallet to discover and mint Waystones.
+Then explore: [`/atlas`](http://localhost:3000/atlas), [`/bag/1`](http://localhost:3000/bag/1), [`/road/1/2`](http://localhost:3000/road/1/2), [`/route/1/2/7`](http://localhost:3000/route/1/2/7). Connect an injected wallet to discover roads/routes and mint Waystones.
+
+## Development
+
+Monorepo managed with pnpm (`pnpm@9`, Node ≥ 20).
+
+| Command | What it does |
+|---|---|
+| `pnpm test:contracts` | Forge unit tests (the mainnet-fork test skips itself unless `MAINNET_RPC_URL` is set) |
+| `pnpm --filter @loot-cartographer/web typecheck` | TypeScript check on the web app |
+| `pnpm build:web` | Production Next.js build |
+| `cd contracts && pnpm fmt` | Format Solidity (`forge fmt`) |
+| `cd contracts && pnpm deploy:anvil` | Deploy the full stack + seed bags to a local Anvil |
+
+[CI](.github/workflows/ci.yml) runs `forge fmt --check` + build + test on the contracts, and typecheck + build on the web app, for every push and pull request.
+
+To re-tune the affinity weights or road density against real Loot data, see [Re-calibrating the threshold](docs/how-the-world-is-made.md#re-calibrating-the-threshold).
 
 ## Design principles
 
@@ -73,4 +96,6 @@ Then explore: `/atlas`, `/bag/1`, `/road/1/2`, `/route/1/2/7`. Connect an inject
 
 ## Status
 
-V0.1.5 — road and route discovery + Waystone minting work end to end against a local chain. Mainnet deployment and CI are still ahead. See `CLAUDE.md` for the full technical spec and current implementation state.
+**v0.1.6** — the atlas, bag inspection, road & route discovery, onchain Waystone minting, and a chain-read activity feed all work end to end against a local chain, behind CI. The remaining milestone is **mainnet deployment** against canonical Loot — the step that makes the world public and permissionless.
+
+`CLAUDE.md` holds the project's locked decisions and implementation notes for contributors.
