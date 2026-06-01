@@ -38,6 +38,8 @@ The four contracts:
 - **`WaystoneRenderer`** — pure onchain SVG builder for road/route glyphs.
 - **`WaystoneNFT`** — ERC-721; mint gated to the discoverer recorded in `LootAtlas`.
 
+For the full derivation math — coordinates, greatness, orders, regions, terrain, the road affinity formula, and the seams left open for contributors — see **[docs/how-the-world-is-made.md](docs/how-the-world-is-made.md)**.
+
 ## Quick start
 
 ```bash
