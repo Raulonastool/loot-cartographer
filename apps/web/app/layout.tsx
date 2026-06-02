@@ -46,6 +46,9 @@ export default function RootLayout({
                   <Link href="/atlas" className="text-rule hover:text-ink transition-colors">
                     Atlas
                   </Link>
+                  <Link href="/waystones" className="text-rule hover:text-ink transition-colors">
+                    Waystones
+                  </Link>
                   <Link href="/about" className="text-rule hover:text-ink transition-colors">
                     About
                   </Link>

@@ -277,6 +277,11 @@ cost   = distance + (10000 - affinity * 70) / 10;`}</Code>
                 The Waystones are carved markers, not PFPs — stone outlines, sigil grids, glyph primitives,
                 inscriptions. They show the trace the adventurer left behind, not the adventurer.
               </p>
+              <div className="mt-6">
+                <Cta href="/waystones" variant="ghost">
+                  See the Waystone art & how it&apos;s derived →
+                </Cta>
+              </div>
             </Section>
 
             <Section id="build" eyebrow="An open world" title="Build on it">

@@ -132,6 +132,10 @@ export default function HomePage() {
           computing one. The art renders as long as the contracts remain readable on Ethereum.
         </p>
 
+        <div className="mt-6">
+          <Cta href="/waystones">See the Waystones →</Cta>
+        </div>
+
         <div className="mt-9 border border-gold/40 vignette">
           <div className="px-6 py-7">
             <div className="flex items-center justify-between gap-4">
