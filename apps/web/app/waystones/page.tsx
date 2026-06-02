@@ -52,14 +52,31 @@ export default function WaystonesPage() {
         </div>
       </section>
 
+      {/* ───────────── placeholder note ───────────── */}
+      <section className="mx-auto max-w-4xl pt-12">
+        <div className="border border-gold/40 bg-gold/[0.04] px-5 py-4">
+          <span className="font-mono text-[11px] tracking-widest uppercase text-gold">
+            The art is a work in progress
+          </span>
+          <p className="mt-2 text-sm sm:text-base text-ink/85 leading-relaxed">
+            The stones shown here are a <span className="text-ink">placeholder</span>. The renderer is real and
+            fully onchain — every stone is computed from its discovery key, deterministically, with no server —
+            but the visual language itself (the carved-stone look, the runes) is still being designed. What&apos;s
+            settled is <span className="text-ink">how</span> a Waystone is derived; exactly how it will look is
+            still to come.
+          </p>
+        </div>
+      </section>
+
       {/* ───────────── gallery ───────────── */}
       <section className="mx-auto max-w-4xl py-16 sm:py-20">
         <Eyebrow>The gallery</Eyebrow>
         <h3 className="mt-4 text-3xl sm:text-4xl leading-tight">No two stones alike</h3>
         <p className="mt-4 text-rule leading-relaxed max-w-xl">
-          Each of these is the literal output of <span className="font-mono text-ink/80">renderRoad</span> /{" "}
-          <span className="font-mono text-ink/80">renderRoute</span> — pure functions, rendered straight from
-          the contract. A different discovery means a different key, and a different key means a different stone.
+          Each of these is the literal output of the current{" "}
+          <span className="font-mono text-ink/80">renderRoad</span> /{" "}
+          <span className="font-mono text-ink/80">renderRoute</span>, rendered straight from the contract. A
+          different discovery means a different key, and a different key means a different stone.
         </p>
         <div className="mt-9 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
           {GALLERY.map((g) => (

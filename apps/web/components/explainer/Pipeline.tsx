@@ -2,8 +2,8 @@ const STEPS: { label: string; detail: string }[] = [
   { label: "Loot item strings", detail: "Eight equipment slots, read live from canonical Loot" },
   { label: "Bag fingerprint", detail: "keccak256(bagId, weapon, chest, … ring)" },
   { label: "Coordinates", detail: "One hash, two axes → a fixed (x, y)" },
-  { label: "Region + terrain", detail: "Nearest capital by Voronoi; land shaped by identity" },
-  { label: "Road affinity", detail: "Kinship vs. distance decides what connects" },
+  { label: "Region + terrain", detail: "Sorted into the nearest of 32 regions; land shaped by what it carries" },
+  { label: "Road affinity", detail: "Shared traits vs. distance decide what connects" },
   { label: "Discovery graph", detail: "The map already exists — being first is the act" },
   { label: "Waystone", detail: "A discovery, carved into a fully onchain artifact" },
 ];

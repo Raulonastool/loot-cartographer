@@ -14,17 +14,17 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-4xl px-6 py-20 sm:py-28 text-center rise">
           <Eyebrow>Waystone (for Adventurers)</Eyebrow>
           <h2 className="mt-5 text-4xl sm:text-6xl leading-[1.05] tracking-tight">
-            Reading a World
+            Loot has a map.
             <br />
-            Out of the Chain
+            <span className="text-gold">We computed it.</span>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg sm:text-xl text-ink/85 leading-relaxed">
-            Loot told us what each adventurer carried. Loot Cartographer asks a different question —{" "}
+            Loot told us what each adventurer carried. We worked out the part it left blank —{" "}
             <span className="text-gold italic">where was the bag found?</span>
           </p>
           <p className="mx-auto mt-4 max-w-xl text-rule text-sm sm:text-base leading-relaxed">
-            A world derived from Loot, not hosted. The chain is the source of truth; the map is a
-            deterministic projection of it.
+            Nothing here is hosted. The map isn&apos;t stored on a server — it&apos;s calculated straight
+            from the original Loot contract, the same way every time.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Cta href="/atlas">Explore the atlas →</Cta>
@@ -44,10 +44,10 @@ export default function HomePage() {
           It shipped a seed.
         </h3>
         <p className="mt-5 text-lg leading-relaxed text-ink/85">
-          It arrived as 8,000 bags of white text on black. No art, no client, no map, no lore bible —
-          just names. It looked almost too simple. But the more people read the contract, the clearer it
-          became: Loot was never empty. It was compressed possibility, a fantasy world folded into a smart
-          contract.
+          It launched in 2021 as 8,000 bags of plain white text on black — a Katana, a Divine Robe, a Demon
+          Crown. No art, no game, no map, no lore. Just names. It looked almost too simple. But it was all
+          there in the contract; people just had to read it. Loot wasn&apos;t empty — it was a world nobody
+          had worked out yet.
         </p>
         <div className="mt-7 flex flex-wrap gap-2">
           {ITEMS.map((item) => (
@@ -87,8 +87,8 @@ export default function HomePage() {
             />
           </div>
           <p className="mt-8 text-center text-xl sm:text-2xl text-ink/90">
-            Both are acts of reading the chain. The original contract stays the same;{" "}
-            <span className="text-gold">the world keeps getting bigger.</span>
+            Same contract, read two different ways. Nobody changed Loot —{" "}
+            <span className="text-gold">they just kept finding more in it.</span>
           </p>
         </div>
       </section>
@@ -96,10 +96,10 @@ export default function HomePage() {
       {/* ───────────── the pipeline ───────────── */}
       <section className="mx-auto max-w-3xl py-16 sm:py-20">
         <Eyebrow>How a bag becomes a place</Eyebrow>
-        <h3 className="mt-4 text-3xl sm:text-4xl leading-tight">A deterministic derivation</h3>
+        <h3 className="mt-4 text-3xl sm:text-4xl leading-tight">From a bag to a place</h3>
         <p className="mt-4 text-rule leading-relaxed">
-          Every layer stays close to the source material. Same Loot in, same world out — inspectable and
-          reproducible by anyone, with no private backend deciding what is true.
+          Each bag&apos;s spot in the world gets worked out step by step from what it carries. Same Loot in,
+          same map out — anyone can run the numbers and land on the exact same answer.
         </p>
         <div className="mt-9">
           <Pipeline />
@@ -113,9 +113,9 @@ export default function HomePage() {
             <Eyebrow>The cartographer&apos;s loop</Eyebrow>
             <h3 className="mt-4 text-3xl sm:text-4xl">Find. Record. Carve.</h3>
             <ol className="mt-7 space-y-5">
-              <Loop n="01" label="Find a road" detail="Two bags whose kinship overcomes the distance between them." />
-              <Loop n="02" label="Record the discovery" detail="Permissionless and first-discoverer-wins, written to LootAtlas." />
-              <Loop n="03" label="Carve the Waystone" detail="Mint a fully onchain artifact — gated to the discoverer." />
+              <Loop n="01" label="Find a road" detail="Two bags with enough in common to be linked across the distance between them." />
+              <Loop n="02" label="Record the discovery" detail="Anyone can do it — the first to chart a road owns that find for good." />
+              <Loop n="03" label="Carve the Waystone" detail="Mint a carved stone for the discovery — fully onchain, and only by the one who made it." />
             </ol>
           </div>
           <WaystoneGlyph className="mx-auto w-36 sm:w-44 text-ink" />
@@ -128,8 +128,12 @@ export default function HomePage() {
         <h3 className="mt-4 text-3xl sm:text-4xl leading-tight">The art is computed, not stored.</h3>
         <p className="mt-5 text-lg leading-relaxed text-ink/85">
           A Waystone is an SVG generated by a smart contract, drawn from chain state at the moment you look.
-          No server. No IPFS. No host to maintain. The renderer isn&apos;t fetching a picture — it&apos;s
-          computing one. The art renders as long as the contracts remain readable on Ethereum.
+          No server. No host to maintain. The renderer isn&apos;t fetching a picture — it&apos;s computing one,
+          and it keeps rendering as long as the contract is readable on Ethereum.
+        </p>
+        <p className="mt-3 text-rule text-sm leading-relaxed">
+          (The carved-stone art on display today is a placeholder — how a Waystone is derived is settled, but
+          the final look is still being designed.)
         </p>
 
         <div className="mt-6">
