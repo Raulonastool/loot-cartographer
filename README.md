@@ -28,7 +28,7 @@ And for the cartographers who help chart this world, each discovery can be comme
 | **Bag** | `/bag/[id]` | A bag's location, region, and terrain, read from chain |
 | **Road** | `/road/[a]/[b]` | Connectivity between two bags; permissionless `discoverRoad`, then mint a road Waystone |
 | **Route** | `/route/[...path]` | Chart an ordered path of bags with valid hops; `discoverRoute`, then mint a route Waystone |
-| **Waystones** | onchain | ERC-721 with fully onchain SVG art, mint gated to the recorded discoverer |
+| **Waystones** | onchain | ERC-721 with fully onchain SVG art (the carved-stone look is a working placeholder — final art still being designed), mint gated to the recorded discoverer |
 
 ## Architecture
 

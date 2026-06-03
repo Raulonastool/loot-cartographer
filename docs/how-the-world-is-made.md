@@ -46,6 +46,8 @@ Three deliberate choices:
 2. **Modulo bias is negligible.** A 128-bit dividend against a 10001 divisor produces bias on the order of `3e-35` (`Coordinates.sol:6-7`). The grid is uniform for all practical purposes — no rejection sampling needed.
 3. **Location is fingerprinted from contents, not just the id.** `bagId` alone is already unique and deterministic. Folding all eight item strings into the seed is a *design* decision: a bag's position is a function of **what it carries**, not its index. Gear determines geography. This is the literal "trapped in space" property — as immutable as the mint.
 
+> **On canon:** this is *a* deterministic placement, not *the* canonical one. There is no objectively correct coordinate for a Loot bag, and the project does not claim there is. What the derivation guarantees is narrower and more useful: a bag's location is **fixed, reproducible, and owner-independent** — `ownerOf` is deliberately *not* part of the seed, so trading a bag never moves it — and it's computed from Loot's own data rather than an arbitrary database. Placement is a choice; determinism and provenance are the point.
+
 Distance is **Manhattan**, chosen to match the grid and keep everything integer math:
 
 ```solidity
@@ -184,7 +186,7 @@ node contracts/scripts/analyze-histogram.mjs              # suggests a threshold
 - **`LootCartographer` is 100% `view`, zero storage** beyond the immutable Loot address (`LootCartographer.sol:16-17`). Reads are free offchain; gas is paid only when `LootAtlas` validates a discovery onchain — roughly 8 Loot string reads per `locate`, 16 per `roadBetween` (`LootCartographer.sol:13-15`).
 - **The `Bag` memory struct exists to dodge stack-too-deep.** Ten fields (8 item strings + x + y) loaded once per bag and passed by reference internally (`LootCartographer.sol:24-36, 112-124`).
 - **Libraries are stateless; contracts wire them.** `Coordinates`, `Pluck`, `Orders`, `Regions`, `TerrainLib`, `Glyphs` are pure. No proxies, no upgradeability — immutable post-deploy.
-- **Discovery is the only state.** The geography for all 8,000 bags already exists deterministically. The single thing ever *written* to chain is **who discovered what first** — `LootAtlas` records first-discoverer-wins, and a `WaystoneNFT` (with fully onchain SVG art) commemorates it. The map exists; discovery records who walked it.
+- **Discovery is the only state.** The geography for all 8,000 bags already exists deterministically. The single thing ever *written* to chain is **who discovered what first** — `LootAtlas` records first-discoverer-wins, and a `WaystoneNFT` commemorates it. A *road* connects two bags; a *route* is a path **you supply** that `discoverRoute` validates hop-by-hop (each leg must be a real road) and prices by summing the legs — it verifies a path, it does not search for one. The map exists; discovery records who walked it.
 
 Build settings are locked for reproducibility: solc `0.8.24`, `via-IR`, `optimizer_runs = 1_000_000`, `fuzz_runs = 1024` (`contracts/foundry.toml`).
 
@@ -198,7 +200,7 @@ The V1 derivations are deliberate but not final. The seams most worth contributi
 - **Affinity weights & `ROAD_THRESHOLD` (`LootCartographer.sol:89-97`)** — the road graph's shape is four numbers and a cutoff. Re-tune them (and re-calibrate against real data) to change how connected the world feels.
 - **Terrain rules (`TerrainLib.sol`)** — the decision tree is small and readable; new terrain types or finer greatness/noise banding slot in cleanly.
 - **Region capitals & names (`Regions.sol`)** — the one authored layer. A different 32 (or a different count) reshapes the political map.
-- **Renderer glyphs (`Glyphs.sol` / `WaystoneRenderer`)** — Waystone art is pure onchain SVG; new glyph primitives expand what a discovery can look like.
+- **Renderer glyphs (`Glyphs.sol` / `WaystoneRenderer`)** — Waystone art is pure onchain SVG. **The current carved-stone style is a working placeholder:** the *derivation* (a deterministic SVG from the discovery key) is settled, but the final visual language is still being designed. New glyph primitives expand what a discovery can look like.
 
 Because everything is a pure function of Loot, any fork you deploy is independently verifiable — there's no privileged state to trust.
 
