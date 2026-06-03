@@ -100,6 +100,64 @@ contract LootCartographerTest is Test {
         assertFalse(r.exists);
     }
 
+    /// @notice A shared dominant Order ALONE is not enough for a road.
+    /// @dev    Both bags are dominant-order Power, but carried in *different* slots —
+    ///         so sharedOrder = 1 (affinity 40) and nothing else matches. That caps the
+    ///         score at affinity*100 = 4000, below ROAD_THRESHOLD (5300), regardless of
+    ///         distance (which only subtracts). Pins the documented "necessary-ish but
+    ///         not sufficient" rule.
+    function test_RoadBetweenSharedOrderAloneIsInsufficient() public {
+        string[8] memory aSlots = ["Katana of Power", "Shirt", "Cap", "Sash", "Shoes", "Gloves", "Pendant", "Gold Ring"];
+        string[8] memory bSlots =
+            ["Quarterstaff", "Robe of Power", "Helm", "Belt", "Boots", "Gauntlets", "Necklace", "Bronze Ring"];
+        loot.setBag(300, aSlots);
+        loot.setBag(301, bSlots);
+
+        ILootCartographer.Road memory r = carto.roadBetween(300, 301);
+        assertFalse(r.exists);
+        assertLt(r.score, carto.ROAD_THRESHOLD());
+        assertEq(r.cost, 0); // no cost when no road
+    }
+
+    /// @notice roadBetween is order-independent: (a,b) and (b,a) give the same road.
+    function test_RoadBetweenIsSymmetric() public {
+        string[8] memory slots = _powerSlots();
+        loot.setBag(400, slots);
+        loot.setBag(401, slots);
+
+        ILootCartographer.Road memory ab = carto.roadBetween(400, 401);
+        ILootCartographer.Road memory ba = carto.roadBetween(401, 400);
+        assertEq(ab.exists, ba.exists);
+        assertEq(ab.distance, ba.distance);
+        assertEq(ab.score, ba.score);
+        assertEq(ab.cost, ba.cost);
+    }
+
+    /// @notice When a road exists, it carries a positive travel cost.
+    function test_RoadCostPositiveWhenExists() public {
+        string[8] memory slots = _powerSlots();
+        loot.setBag(500, slots);
+        loot.setBag(501, slots);
+
+        ILootCartographer.Road memory r = carto.roadBetween(500, 501);
+        assertTrue(r.exists);
+        assertGt(r.cost, 0);
+        assertGe(r.score, carto.ROAD_THRESHOLD());
+    }
+
+    function _powerSlots() internal pure returns (string[8] memory s) {
+        s = [
+            string("Katana of Power"),
+            "Robe of Power",
+            "Crown of Power",
+            "Belt of Power",
+            "Boots of Power",
+            "Gloves",
+            "Pendant",
+            "Gold Ring"
+        ];
+    }
+
     /// @notice Fork mainnet and locate canonical Loot bag #1.
     /// @dev    Skipped silently if MAINNET_RPC_URL is not set.
     function testFork_LocateRealBag() public {
