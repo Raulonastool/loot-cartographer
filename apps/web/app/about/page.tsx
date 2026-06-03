@@ -260,9 +260,17 @@ y = int256(uint128(seed >> 128) % 10001) - 5000;  // high 128 bits`}</Code>
                   </div>
                 ))}
               </div>
+              <p className="mt-6">
+                Add those up into an <span className="text-ink/90">affinity</span> score, subtract a small penalty
+                for distance, and a road exists once the total clears a fixed bar. Sharing your{" "}
+                <span className="text-ink/90">dominant Order</span> is the heavy hitter — but on its own it lands
+                just <em>under</em> the bar, so a road really needs that shared Order <em>plus</em> a little
+                more: a matching item, another shared suffix, or some shared rarity. Then distance can still
+                break a connection that&apos;s stretched too far to hold.
+              </p>
               <div className="mt-6">
                 <Code>{`score = affinity * 100 - distance / 20;
-exists = score >= 5300;
+exists = score >= 5300;       // a road exists when score clears the bar
 cost   = distance + (10000 - affinity * 70) / 10;`}</Code>
               </div>
               <p className="mt-6">

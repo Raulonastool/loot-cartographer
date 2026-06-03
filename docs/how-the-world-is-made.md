@@ -164,6 +164,8 @@ The four affinity signals, weighted by how meaningful they are:
 | `sharedTypes` | ×4 | per slot with an identical item string |
 | `rarityResonance` | ×6 | `min(rarityA, rarityB)` — shared abundance of `+1` items |
 
+In plain terms: **a road exists when `score` clears 5300.** The dominant-Order match is the big lever — but `sharedOrder` alone is worth only `40 × 100 = 4000`, which sits *under* the bar before distance even applies. So a road needs that shared Order **plus** a little more (a matching item, another shared suffix, or some `+1` rarity), and the pair has to be close enough to survive the distance penalty (`distance/20`, at most −1000). That's why a shared Order is necessary-ish but not sufficient.
+
 `score` and `cost` use clamped integer math (no floats, no underflow): a negative score floors to 0 (`LootCartographer.sol:94-95`), and the cost discount clamps before subtraction (`:102-104`). `cost` grows with distance and shrinks with affinity — closer kin travel cheaper.
 
 **The threshold is empirical, not a guess.** `ROAD_THRESHOLD = 5300` was calibrated against a **100,000-pair sample of real mainnet Loot bags** (`test/RoadDensity.t.sol` + the committed `deployments/road-density-histogram.json`). The score distribution is bimodal — sharing an order alone lands in the ~4000s — so the bar sits high to stay selective. 5300 yields ~10.4 outgoing roads per bag, ~41,600 roads across all 8,000 bags: sparse but explorable (`LootCartographer.sol:19-22`).
